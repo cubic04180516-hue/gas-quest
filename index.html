@@ -26,7 +26,7 @@
             
             const [selectedDate, setSelectedDate] = useState("2026-08-31");
 
-            // 초기 상태는 빈 배열([])로 설정하여 아무 기록도 없는 상태에서 시작
+            // 초기 실행 시 샘플 없이 빈 배열([])로 시작하도록 설정
             const [entries, setEntries] = useState(() => {
                 const saved = localStorage.getItem('fart_diary_entries');
                 if (saved) {
