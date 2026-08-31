@@ -16,21 +16,19 @@
         const { useState } = React;
 
         function App() {
-            // 오늘 날짜 구하기 (YYYY-MM-DD)
             const todayStr = new Date().toISOString().split('T')[0];
             const [selectedDate, setSelectedDate] = useState(todayStr);
 
             const [entries, setEntries] = useState([
-                { id: 1, date: todayStr, time: "09:00", sound: "산바람 (소리 없음)", smell: "향긋함", note: "아침 출근길 신호" },
-                { id: 2, date: todayStr, time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "점심후 커피 타임" }
+                { id: 1, date: todayStr, time: "09:00", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "상쾌한 아침 시작" },
+                { id: 2, date: todayStr, time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "고구마의 저주" }
             ]);
 
             const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
             const [sound, setSound] = useState("산바람 (소리 없음)");
-            const [smell, setSmell] = useState("향긋함");
+            const [smell, setSmell] = useState("무난함");
             const [note, setNote] = useState("");
 
-            // 일주일 날짜 리스트 생성
             const getWeekDays = () => {
                 const dates = [];
                 for (let i = 6; i >= 0; i--) {
@@ -42,15 +40,15 @@
             };
             const weekDays = getWeekDays();
 
-            // 선택한 날짜의 기록 필터링
             const filteredEntries = entries.filter(item => item.date === selectedDate);
 
-            // 방귀 횟수에 따른 코믹 캐릭터 상태 결정
+            // 상황과 증상에 맞는 실감나고 재미있는 캐릭터 상태 변화
             const getCharacterStatus = (count) => {
-                if (count === 0) return { title: "🌱 평온한 숲의 요정", desc: "아직 가스가 모이지 않았어요. 평화로운 상태!", bg: "from-emerald-400 to-teal-500" };
-                if (count <= 3) return { title: "🍃 바람의 사령술사", desc: "살랑살랑 가스가 움직이기 시작했습니다.", bg: "from-amber-400 to-orange-400" };
-                if (count <= 6) return { title: "🔥 방귀 대장 불꽃 남자", desc: "제법 출력이 강력해졌습니다. 주의보 발령!", bg: "from-orange-500 to-red-500" };
-                return { title: "🌋 화산 폭발 임박 생물체", desc: "지구의 종말 수준! 장 내 압력 최대치 경보!", bg: "from-red-600 to-purple-600" };
+                if (count === 0) return { title: "🌱 평온한 숲의 요정", desc: "아직 장내에 평화가 가득합니다. 가스 제로 상태!", bg: "from-emerald-400 to-teal-500" };
+                if (count <= 2) return { title: "🍃 산들바람 연금술사", desc: "살랑살랑 가스가 피어오르는 평화로운 소리 공장.", bg: "from-teal-400 to-cyan-500" };
+                if (count <= 4) return { title: "🎺 눈치 없는 트럼펫 연주자", desc: "주변 사람들이 슬슬 콧등을 찡그리기 시작합니다.", bg: "from-amber-400 to-orange-400" };
+                if (count <= 7) return { title: "🔥 방귀 대장 불꽃 전사", desc: "출력이 너무 강력해 의자가 들썩거릴 지경!", bg: "from-orange-500 to-red-500" };
+                return { title: "🌋 화산 폭발 임박 생물체", desc: "지구 종말 급 가스 포화 상태! 대피령을 선포합니다!", bg: "from-red-600 to-purple-600" };
             };
 
             const currentStatus = getCharacterStatus(filteredEntries.length);
@@ -73,7 +71,6 @@
                 setEntries(entries.filter(item => item.id !== id));
             };
 
-            // 시간대별 통계 (선택한 날짜 기준)
             const timeSlotsLabels = ["00-03시", "03-06시", "06-09시", "09-12시", "12-15시", "15-18시", "18-21시", "21-24시"];
             const timeSlotCounts = timeSlotsLabels.map((_, index) => {
                 return filteredEntries.filter(item => {
@@ -94,10 +91,10 @@
 
                     {/* 일주일 날짜 선택 바 */}
                     <div className="bg-white rounded-3xl p-4 shadow-xl shadow-orange-100/50 border border-orange-100">
-                        <label className="text-xs font-bold text-slate-500 mb-2 block text-center">📅 날짜 선택 (일주일 관리)</label>
+                        <label className="text-xs font-bold text-slate-500 mb-2 block text-center">📅 일주일 날짜별 관리</label>
                         <div className="flex justify-between gap-1 overflow-x-auto pb-1">
                             {weekDays.map(dateStr => {
-                                const dayLabel = dateStr.slice(5); // MM-DD
+                                const dayLabel = dateStr.slice(5);
                                 const isSelected = dateStr === selectedDate;
                                 return (
                                     <button
@@ -116,13 +113,13 @@
                         </div>
                     </div>
 
-                    {/* 코믹 캐릭터 및 상태 변화 카드 */}
+                    {/* 실감나는 코믹 캐릭터 상태 카드 */}
                     <div className={`rounded-3xl p-6 text-white shadow-xl bg-gradient-to-r ${currentStatus.bg} transition-all duration-500 space-y-2`}>
-                        <div className="text-xs font-bold opacity-80 uppercase tracking-wider">현재 나의 상태</div>
+                        <div className="text-xs font-bold opacity-80 uppercase tracking-wider">코믹 캐릭터 상태 변화</div>
                         <div className="text-2xl font-black">{currentStatus.title}</div>
                         <p className="text-sm opacity-90">{currentStatus.desc}</p>
                         <div className="pt-2 text-xs font-bold bg-black/10 inline-block px-3 py-1 rounded-full">
-                            선택일 총 배출 횟수: {filteredEntries.length}회
+                            선택일 누적 배출: {filteredEntries.length}회
                         </div>
                     </div>
 
@@ -141,7 +138,7 @@
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 block">소리 특징 (태그)</label>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">소리 특징</label>
                                 <select 
                                     value={sound} 
                                     onChange={(e) => setSound(e.target.value)}
@@ -156,13 +153,13 @@
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 block">냄새/강도 (태그)</label>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">냄새 및 강도 태그</label>
                                 <select 
                                     value={smell} 
                                     onChange={(e) => setSmell(e.target.value)}
                                     className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
                                 >
-                                    <option value="향긋함">향긋함</option>
+                                    <option value="향긋함 (꽃향기)">향긋함 (꽃향기)</option>
                                     <option value="무난함">무난함</option>
                                     <option value="생화학무기급">생화학무기급</option>
                                 </select>
@@ -171,7 +168,7 @@
                                 <label className="text-xs font-bold text-slate-500 mb-1 block">메모</label>
                                 <input 
                                     type="text" 
-                                    placeholder="예: 고구마 섭취" 
+                                    placeholder="예: 고구마 과다 섭취" 
                                     value={note}
                                     onChange={(e) => setNote(e.target.value)}
                                     className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
@@ -187,7 +184,7 @@
                         </button>
                     </form>
 
-                    {/* 시간대별 통계 그래프 */}
+                    {/* 시간대별 빈도 분석 그래프 */}
                     <div className="bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100 space-y-4">
                         <h2 className="text-lg font-bold text-orange-900">📊 시간대별 빈도 분석 그래프</h2>
                         <div className="space-y-2">
@@ -206,7 +203,7 @@
                         </div>
                     </div>
 
-                    {/* 선택일 기록 리스트 */}
+                    {/* 기록 리스트 */}
                     <div className="bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100 space-y-4">
                         <h2 className="text-lg font-bold text-orange-900">🕒 {selectedDate} 기록 리스트 ({filteredEntries.length}건)</h2>
                         {filteredEntries.length === 0 ? (
