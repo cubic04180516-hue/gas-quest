@@ -13,10 +13,9 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
         function App() {
-            // 지정된 기간 (8월 31일 ~ 9월 4일) 날짜 배열 설정
             const targetDays = [
                 "2026-08-31",
                 "2026-09-01",
@@ -27,10 +26,26 @@
             
             const [selectedDate, setSelectedDate] = useState("2026-08-31");
 
-            const [entries, setEntries] = useState([
-                { id: 1, date: "2026-08-31", time: "13:30", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "프로젝트 시작의 신호" },
-                { id: 2, date: "2026-09-01", time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "고구마의 저주" }
-            ]);
+            // 브라우저 로컬 스토리지에서 기존 기록 불러오기 (없으면 기본값 사용)
+            const [entries, setEntries] = useState(() => {
+                const saved = localStorage.getItem('fart_diary_entries');
+                if (saved) {
+                    try {
+                        return JSON.parse(saved);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                return [
+                    { id: 1, date: "2026-08-31", time: "13:30", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "프로젝트 시작의 신호" },
+                    { id: 2, date: "2026-09-01", time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "고구마의 저주" }
+                ];
+            });
+
+            // entries가 변경될 때마다 브라우저 저장소에 자동 저장
+            useEffect(() => {
+                localStorage.setItem('fart_diary_entries', JSON.stringify(entries));
+            }, [entries]);
 
             const [time, setTime] = useState("13:00");
             const [sound, setSound] = useState("산바람 (소리 없음)");
@@ -138,7 +153,7 @@
                         </div>
                         <div className="grid grid-cols-5 gap-1">
                             {targetDays.map(dateStr => {
-                                const dayLabel = dateStr.slice(5).replace('-', '/'); // MM/DD 형태로 표시
+                                const dayLabel = dateStr.slice(5).replace('-', '/');
                                 const isSelected = dateStr === selectedDate;
                                 return (
                                     <button
