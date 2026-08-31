@@ -212,22 +212,26 @@
                                     <Clock className="w-3 h-3 text-orange-500" /> {item.time}
                                   </span>
                                   <div>
-                                    <div className={`text-xs font-bold ${info.color}`}>{info.label}</div>
-                                    <div className="text-[11px] text-slate-500 font-medium">{moodMap[item.mood]}</div>
-                                  </div>
-                                </div>
-                                <button onClick={() => deleteEntry(item.id)} className="text-slate-400 hover:text-red-500 p-1.5 rounded-lg">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-5">
+                                    <div className="space-y-5">
+  <div className="bg-orange-50/50 p-4 rounded-2xl border border-orange-200">
+    <h4 className="text-xs font-black uppercase text-orange-900 mb-4 flex items-center gap-2">
+      <BarChart2 className="w-4 h-4 text-orange-500" /> 시간대별 방귀 빈도 및 간격 파악
+    </h4>
+    <div className="space-y-2">
+      {timeSlotCounts.map((count, index) => {
+        const percentage = Math.round((count / maxSlotCount) * 100);
+        return (
+          <div key={index} className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-600 w-14">{timeSlotsLabels[index]}</span>
+            <div className="flex-1 bg-white h-4 rounded-full overflow-hidden p-0.5 border border-orange-200">
+              <div className="bg-gradient-to-r from-orange-400 to-amber-500 h-full rounded-full" style={{ width: `${percentage}%` }}></div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</div>
                     <div className="bg-orange-50/50 p-4 rounded-2xl border border-orange-200">
                       <h4 className="text-xs font-black uppercase text-orange-900 mb-4 flex items-center gap-2">
                         <BarChart2 className="w-4 h-4 text-orange-500" /> 시간대별 방귀 빈도 및 간격 파악
