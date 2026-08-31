@@ -16,23 +16,55 @@
         const { useState } = React;
 
         function App() {
+            // 오늘 날짜 구하기 (YYYY-MM-DD)
+            const todayStr = new Date().toISOString().split('T')[0];
+            const [selectedDate, setSelectedDate] = useState(todayStr);
+
             const [entries, setEntries] = useState([
-                { id: 1, time: "09:00", mood: "happy", note: "아침 출근길 신호" },
-                { id: 2, time: "14:30", mood: "neutral", note: "점심후 커피 타임" }
+                { id: 1, date: todayStr, time: "09:00", sound: "산바람 (소리 없음)", smell: "향긋함", note: "아침 출근길 신호" },
+                { id: 2, date: todayStr, time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "점심후 커피 타임" }
             ]);
+
             const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
-            const [mood, setMood] = useState("happy");
+            const [sound, setSound] = useState("산바람 (소리 없음)");
+            const [smell, setSmell] = useState("향긋함");
             const [note, setNote] = useState("");
 
-            const moodMap = {
-                happy: { label: "시원함 😊", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-                neutral: { label: "보통 😐", color: "text-amber-600 bg-amber-50 border-amber-200" },
-                frown: { label: "불편함 😣", color: "text-rose-600 bg-rose-50 border-rose-200" }
+            // 일주일 날짜 리스트 생성
+            const getWeekDays = () => {
+                const dates = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    dates.push(d.toISOString().split('T')[0]);
+                }
+                return dates;
             };
+            const weekDays = getWeekDays();
+
+            // 선택한 날짜의 기록 필터링
+            const filteredEntries = entries.filter(item => item.date === selectedDate);
+
+            // 방귀 횟수에 따른 코믹 캐릭터 상태 결정
+            const getCharacterStatus = (count) => {
+                if (count === 0) return { title: "🌱 평온한 숲의 요정", desc: "아직 가스가 모이지 않았어요. 평화로운 상태!", bg: "from-emerald-400 to-teal-500" };
+                if (count <= 3) return { title: "🍃 바람의 사령술사", desc: "살랑살랑 가스가 움직이기 시작했습니다.", bg: "from-amber-400 to-orange-400" };
+                if (count <= 6) return { title: "🔥 방귀 대장 불꽃 남자", desc: "제법 출력이 강력해졌습니다. 주의보 발령!", bg: "from-orange-500 to-red-500" };
+                return { title: "🌋 화산 폭발 임박 생물체", desc: "지구의 종말 수준! 장 내 압력 최대치 경보!", bg: "from-red-600 to-purple-600" };
+            };
+
+            const currentStatus = getCharacterStatus(filteredEntries.length);
 
             const addEntry = (e) => {
                 e.preventDefault();
-                const newEntry = { id: Date.now(), time, mood, note: note || "기록 없음" };
+                const newEntry = { 
+                    id: Date.now(), 
+                    date: selectedDate, 
+                    time, 
+                    sound, 
+                    smell, 
+                    note: note || "기록 없음" 
+                };
                 setEntries([newEntry, ...entries]);
                 setNote("");
             };
@@ -41,9 +73,10 @@
                 setEntries(entries.filter(item => item.id !== id));
             };
 
+            // 시간대별 통계 (선택한 날짜 기준)
             const timeSlotsLabels = ["00-03시", "03-06시", "06-09시", "09-12시", "12-15시", "15-18시", "18-21시", "21-24시"];
             const timeSlotCounts = timeSlotsLabels.map((_, index) => {
-                return entries.filter(item => {
+                return filteredEntries.filter(item => {
                     const hour = parseInt(item.time.split(":")[0]);
                     return Math.floor(hour / 3) === index;
                 }).length;
@@ -59,9 +92,43 @@
                         <p className="text-sm text-slate-500 mt-1">오늘 나의 장 건강과 가스 기록 다이어리</p>
                     </header>
 
-                    {/* 기록 입력폼 */}
+                    {/* 일주일 날짜 선택 바 */}
+                    <div className="bg-white rounded-3xl p-4 shadow-xl shadow-orange-100/50 border border-orange-100">
+                        <label className="text-xs font-bold text-slate-500 mb-2 block text-center">📅 날짜 선택 (일주일 관리)</label>
+                        <div className="flex justify-between gap-1 overflow-x-auto pb-1">
+                            {weekDays.map(dateStr => {
+                                const dayLabel = dateStr.slice(5); // MM-DD
+                                const isSelected = dateStr === selectedDate;
+                                return (
+                                    <button
+                                        key={dateStr}
+                                        onClick={() => setSelectedDate(dateStr)}
+                                        className={`px-2.5 py-2 rounded-xl text-xs font-bold transition flex flex-col items-center gap-0.5 min-w-[42px] ${
+                                            isSelected 
+                                                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/30' 
+                                                : 'bg-orange-50/50 text-slate-600 hover:bg-orange-100'
+                                        }`}
+                                    >
+                                        <span>{dayLabel}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* 코믹 캐릭터 및 상태 변화 카드 */}
+                    <div className={`rounded-3xl p-6 text-white shadow-xl bg-gradient-to-r ${currentStatus.bg} transition-all duration-500 space-y-2`}>
+                        <div className="text-xs font-bold opacity-80 uppercase tracking-wider">현재 나의 상태</div>
+                        <div className="text-2xl font-black">{currentStatus.title}</div>
+                        <p className="text-sm opacity-90">{currentStatus.desc}</p>
+                        <div className="pt-2 text-xs font-bold bg-black/10 inline-block px-3 py-1 rounded-full">
+                            선택일 총 배출 횟수: {filteredEntries.length}회
+                        </div>
+                    </div>
+
+                    {/* 상세 태그 입력폼 */}
                     <form onSubmit={addEntry} className="bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100 space-y-4">
-                        <h2 className="text-lg font-bold text-orange-900">➕ 방귀 기록하기</h2>
+                        <h2 className="text-lg font-bold text-orange-900">➕ 방귀 상세 기록하기</h2>
                         
                         <div className="grid grid-cols-2 gap-3">
                             <div>
@@ -74,28 +141,42 @@
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 block">상태/느낌</label>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">소리 특징 (태그)</label>
                                 <select 
-                                    value={mood} 
-                                    onChange={(e) => setMood(e.target.value)}
+                                    value={sound} 
+                                    onChange={(e) => setSound(e.target.value)}
                                     className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
                                 >
-                                    <option value="happy">시원함 😊</option>
-                                    <option value="neutral">보통 😐</option>
-                                    <option value="frown">불편함 😣</option>
+                                    <option value="산바람 (소리 없음)">산바람 (소리 없음)</option>
+                                    <option value="일반적인 소리">일반적인 소리</option>
+                                    <option value="굉음 (천둥소리)">굉음 (천둥소리)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="text-xs font-bold text-slate-500 mb-1 block">메모</label>
-                            <input 
-                                type="text" 
-                                placeholder="예: 고구마를 너무 많이 먹었음" 
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                                className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                            />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">냄새/강도 (태그)</label>
+                                <select 
+                                    value={smell} 
+                                    onChange={(e) => setSmell(e.target.value)}
+                                    className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                >
+                                    <option value="향긋함">향긋함</option>
+                                    <option value="무난함">무난함</option>
+                                    <option value="생화학무기급">생화학무기급</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">메모</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="예: 고구마 섭취" 
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                    className="w-full p-2.5 bg-orange-50/50 border border-orange-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                />
+                            </div>
                         </div>
 
                         <button 
@@ -106,9 +187,9 @@
                         </button>
                     </form>
 
-                    {/* 시간대별 통계 */}
+                    {/* 시간대별 통계 그래프 */}
                     <div className="bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100 space-y-4">
-                        <h2 className="text-lg font-bold text-orange-900">📊 시간대별 빈도 분석</h2>
+                        <h2 className="text-lg font-bold text-orange-900">📊 시간대별 빈도 분석 그래프</h2>
                         <div className="space-y-2">
                             {timeSlotCounts.map((count, index) => {
                                 const percentage = Math.round((count / maxSlotCount) * 100);
@@ -125,33 +206,31 @@
                         </div>
                     </div>
 
-                    {/* 최근 기록 리스트 */}
+                    {/* 선택일 기록 리스트 */}
                     <div className="bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100 space-y-4">
-                        <h2 className="text-lg font-bold text-orange-900">🕒 최근 기록 리스트 ({entries.length}건)</h2>
-                        {entries.length === 0 ? (
-                            <p className="text-sm text-slate-400 text-center py-6">아직 기록된 내용이 없습니다.</p>
+                        <h2 className="text-lg font-bold text-orange-900">🕒 {selectedDate} 기록 리스트 ({filteredEntries.length}건)</h2>
+                        {filteredEntries.length === 0 ? (
+                            <p className="text-sm text-slate-400 text-center py-6">선택한 날짜에 기록된 내용이 없습니다.</p>
                         ) : (
                             <div className="space-y-3">
-                                {entries.map(item => {
-                                    const info = moodMap[item.mood] || moodMap.neutral;
-                                    return (
-                                        <div key={item.id} className="flex justify-between items-center p-3.5 bg-orange-50/50 rounded-2xl border border-orange-100">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-extrabold text-orange-600">{item.time}</span>
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${info.color}`}>{info.label}</span>
-                                                </div>
-                                                <p className="text-sm font-medium text-slate-700">{item.note}</p>
+                                {filteredEntries.map(item => (
+                                    <div key={item.id} className="flex justify-between items-center p-3.5 bg-orange-50/50 rounded-2xl border border-orange-100">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-extrabold text-orange-600">{item.time}</span>
+                                                <span className="text-[10px] font-bold px-2 py-0.5 bg-orange-100 text-orange-800 rounded-full">{item.sound}</span>
+                                                <span className="text-[10px] font-bold px-2 py-0.5 bg-red-100 text-red-800 rounded-full">{item.smell}</span>
                                             </div>
-                                            <button 
-                                                onClick={() => deleteEntry(item.id)}
-                                                className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl text-xs font-bold transition"
-                                            >
-                                                삭제
-                                            </button>
+                                            <p className="text-sm font-medium text-slate-700">{item.note}</p>
                                         </div>
-                                    );
-                                })}
+                                        <button 
+                                            onClick={() => deleteEntry(item.id)}
+                                            className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl text-xs font-bold transition"
+                                        >
+                                            삭제
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
