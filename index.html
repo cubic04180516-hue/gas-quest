@@ -26,7 +26,7 @@
             
             const [selectedDate, setSelectedDate] = useState("2026-08-31");
 
-            // localStorage에서 데이터를 안전하게 불러오기 (없으면 기본 샘플 제공)
+            // 초기 상태는 빈 배열([])로 설정하여 아무 기록도 없는 상태에서 시작
             const [entries, setEntries] = useState(() => {
                 const saved = localStorage.getItem('fart_diary_entries');
                 if (saved) {
@@ -36,13 +36,9 @@
                         console.error(e);
                     }
                 }
-                return [
-                    { id: 1, date: "2026-08-31", time: "20:45", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "프로젝트 공식 시작!" },
-                    { id: 2, date: "2026-09-01", time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "고구마의 저주" }
-                ];
+                return [];
             });
 
-            // entries가 변경될 때마다 localStorage에 자동 저장하여 데이터 유실 방지
             useEffect(() => {
                 localStorage.setItem('fart_diary_entries', JSON.stringify(entries));
             }, [entries]);
