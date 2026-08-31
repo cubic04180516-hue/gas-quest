@@ -26,7 +26,7 @@
             
             const [selectedDate, setSelectedDate] = useState("2026-08-31");
 
-            // 브라우저 로컬 스토리지에서 기존 기록 불러오기 (없으면 기본값 사용)
+            // localStorage에서 데이터를 안전하게 불러오기 (없으면 기본 샘플 제공)
             const [entries, setEntries] = useState(() => {
                 const saved = localStorage.getItem('fart_diary_entries');
                 if (saved) {
@@ -37,17 +37,17 @@
                     }
                 }
                 return [
-                    { id: 1, date: "2026-08-31", time: "13:30", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "프로젝트 시작의 신호" },
+                    { id: 1, date: "2026-08-31", time: "20:45", sound: "산바람 (소리 없음)", smell: "향긋함 (꽃향기)", note: "프로젝트 공식 시작!" },
                     { id: 2, date: "2026-09-01", time: "14:30", sound: "굉음 (천둥소리)", smell: "생화학무기급", note: "고구마의 저주" }
                 ];
             });
 
-            // entries가 변경될 때마다 브라우저 저장소에 자동 저장
+            // entries가 변경될 때마다 localStorage에 자동 저장하여 데이터 유실 방지
             useEffect(() => {
                 localStorage.setItem('fart_diary_entries', JSON.stringify(entries));
             }, [entries]);
 
-            const [time, setTime] = useState("13:00");
+            const [time, setTime] = useState("20:40");
             const [sound, setSound] = useState("산바람 (소리 없음)");
             const [smell, setSmell] = useState("무난함");
             const [note, setNote] = useState("");
@@ -86,7 +86,7 @@
                     };
                     setEntries([newEntry, ...entries]);
                 }
-                setTime("13:00");
+                setTime("20:40");
                 setSound("산바람 (소리 없음)");
                 setSmell("무난함");
                 setNote("");
@@ -102,7 +102,7 @@
 
             const cancelEdit = () => {
                 setEditingId(null);
-                setTime("13:00");
+                setTime("20:40");
                 setSound("산바람 (소리 없음)");
                 setSmell("무난함");
                 setNote("");
@@ -135,13 +135,13 @@
                         <h1 className="text-3xl font-black text-orange-600 flex items-center justify-center gap-2">
                             <span>💨</span> 방귀 대장정
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1">8/31 13:00 ~ 9/4 22:00 집중 기간 관리 다이어리</p>
+                        <p className="text-sm text-slate-500 mt-1">8/31 20:40 ~ 9/4 21:00 집중 기간 관리 다이어리</p>
                     </header>
 
                     {/* 프로젝트 기간 날짜 선택 바 */}
                     <div className="bg-white rounded-3xl p-4 shadow-xl shadow-orange-100/50 border border-orange-100">
                         <div className="flex justify-between items-center mb-2 px-1">
-                            <label className="text-xs font-bold text-slate-500">📅 프로젝트 기간 관리 (8/31 ~ 9/4)</label>
+                            <label className="text-xs font-bold text-slate-500">📅 기간: 8/31 20:40 ~ 9/4 21:00</label>
                             {filteredEntries.length > 0 && (
                                 <button 
                                     onClick={resetDateEntries}
@@ -172,7 +172,7 @@
                         </div>
                     </div>
 
-                    {/* 실감나는 코믹 캐릭터 상태 카드 */}
+                    {/* 코믹 캐릭터 상태 카드 */}
                     <div className={`rounded-3xl p-6 text-white shadow-xl bg-gradient-to-r ${currentStatus.bg} transition-all duration-500 space-y-2`}>
                         <div className="text-xs font-bold opacity-80 uppercase tracking-wider">코믹 캐릭터 상태 변화</div>
                         <div className="text-2xl font-black">{currentStatus.title}</div>
